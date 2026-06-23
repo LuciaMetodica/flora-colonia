@@ -175,8 +175,13 @@
   .grid-cell .cell-label { font-size: 10px; color: #666; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; }
   .grid-cell .cell-val { font-size: 15px; font-weight: 500; color: #f0f0f0; }
 
-  .ficha-eco .tags-eco { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-  .tag-eco { background: #E6F4EA; color: #0D652D; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+  .ficha-eco { margin-bottom: 20px; }
+  .ficha-eco p { font-size: 14px; line-height: 1.6; color: #efefef; margin-top: 8px; }
+
+  .ficha-paisajistico { margin-bottom: 20px; }
+  .ficha-paisajistico p { font-size: 14px; line-height: 1.6; color: #efefef; margin-top: 8px; }
+
+  .grid-cell.hidden { display: none; }
 
   /* FOOTER BOTÓN */
   .ficha-footer {
@@ -247,14 +252,22 @@
       <p id="descripcion"></p>
     </div>
     <div class="ficha-grid">
-      <div class="grid-cell"><div class="cell-label">Porte Adulto</div><div class="cell-val" id="porte"></div></div>
-      <div class="grid-cell"><div class="cell-label">Hoja</div><div class="cell-val" id="hoja"></div></div>
-      <div class="grid-cell"><div class="cell-label">Fruto</div><div class="cell-val" id="fruto"></div></div>
-      <div class="grid-cell"><div class="cell-label">Propagación</div><div class="cell-val" id="propagacion"></div></div>
+      <div class="grid-cell" id="cell-altura"><div class="cell-label">Altura</div><div class="cell-val" id="porte"></div></div>
+      <div class="grid-cell" id="cell-porte-forma"><div class="cell-label">Porte y forma</div><div class="cell-val" id="porte-forma"></div></div>
+      <div class="grid-cell" id="cell-follaje"><div class="cell-label">Follaje</div><div class="cell-val" id="hoja"></div></div>
+      <div class="grid-cell" id="cell-floracion"><div class="cell-label">Floración</div><div class="cell-val" id="floracion"></div></div>
+      <div class="grid-cell" id="cell-meses-flor"><div class="cell-label">Meses floración</div><div class="cell-val" id="meses-floracion"></div></div>
+      <div class="grid-cell" id="cell-meses-fruc"><div class="cell-label">Meses fructificación</div><div class="cell-val" id="meses-fructificacion"></div></div>
+      <div class="grid-cell" id="cell-fruto"><div class="cell-label">Fruto</div><div class="cell-val" id="fruto"></div></div>
+      <div class="grid-cell" id="cell-propagacion"><div class="cell-label">Propagación</div><div class="cell-val" id="propagacion"></div></div>
     </div>
-    <div class="ficha-eco">
+    <div class="ficha-eco" id="sec-eco">
       <div class="sec-label">Valor Ecosistémico</div>
-      <div class="tags-eco" id="tags-eco"></div>
+      <p id="valor-eco"></p>
+    </div>
+    <div class="ficha-paisajistico" id="sec-paisajistico">
+      <div class="sec-label">Valor Paisajístico</div>
+      <p id="valor-paisajistico"></p>
     </div>
   </div>
   <div class="ficha-footer">
@@ -272,20 +285,24 @@ let plantas = [];
 let nombreActual = '';
 
 const COLS = {
-  nombre_comun:      ['nombre comun','nombre común','nombre_comun','nombre_común','comun','común'],
-  nombre_cientifico: ['nombre cientifico','nombre científico','nombre_cientifico','nombre_científico','cientifico','científico'],
-  familia:           ['familia'],
-  tipo:              ['tipo','seccion','sección'],
-  ambiente1:         ['ambiente1','ambiente 1','ambiente principal'],
-  ambiente2:         ['ambiente2','ambiente 2','ambiente secundario'],
-  descripcion:       ['descripcion','descripción','rasgo','descripcion rasgo'],
-  altura:            ['altura','porte','porte adulto'],
-  hoja:              ['hoja','tipo hoja','tipo de hoja'],
-  fruto:             ['fruto','tipo fruto','tipo de fruto'],
-  propagacion:       ['propagacion','propagación','metodo propagacion'],
-  valor1:            ['valor1','valor 1','valor ecosistemico 1','valor ecosistémico 1'],
-  valor2:            ['valor2','valor 2','valor ecosistemico 2','valor ecosistémico 2'],
-  foto_url:          ['foto','foto_url','foto url','imagen','image','url foto'],
+  nombre_comun:          ['nombre comun','nombre común','nombre_comun','nombre_común','comun','común'],
+  nombre_cientifico:     ['nombre cientifico','nombre científico','nombre_cientifico','nombre_científico','cientifico','científico'],
+  familia:               ['familia'],
+  tipo:                  ['tipo','seccion','sección'],
+  ambiente1:             ['ambiente principal','ambiente1','ambiente 1'],
+  ambiente2:             ['ambiente secundario','ambiente2','ambiente 2'],
+  descripcion:           ['rasgo clave','descripcion','descripción','rasgo','descripcion rasgo'],
+  altura:                ['altura'],
+  porte_forma:           ['porte y forma','porte forma','porte_forma'],
+  hoja:                  ['follaje','hoja','tipo hoja','tipo de hoja'],
+  floracion:             ['floración','floracion'],
+  meses_floracion:       ['meses floración','meses floracion','meses_floracion'],
+  meses_fructificacion:  ['meses fructificación','meses fructificacion'],
+  fruto:                 ['fruto','tipo fruto','tipo de fruto'],
+  propagacion:           ['propagacion','propagación','metodo propagacion'],
+  valor_eco:             ['valor ecosistémico','valor ecosistemico','valor1','valor 1'],
+  valor_paisajistico:    ['valor paisajístico','valor paisajistico'],
+  foto_url:              ['foto (url pública)','foto (url publica)','foto url','foto_url','foto','imagen','image','url foto'],
 };
 
 function norm(s) {
@@ -370,6 +387,18 @@ async function init() {
   }
 }
 
+function setCell(cellId, valId, value) {
+  document.getElementById(valId).textContent = value || '—';
+  document.getElementById(cellId).classList.toggle('hidden', !value);
+}
+
+function makeTag(text, cls) {
+  const s = document.createElement('span');
+  s.className = cls;
+  s.textContent = text;
+  return s;
+}
+
 function mostrarFicha() {
   const idx = document.getElementById('selector-planta').value;
   if (idx === '') { document.getElementById('ficha-wrap').style.display = 'none'; return; }
@@ -380,26 +409,39 @@ function mostrarFicha() {
   document.getElementById('nombre-cientifico').textContent = p.nombre_cientifico || '';
   document.getElementById('familia-tipo').textContent = [p.familia, p.tipo].filter(Boolean).join(' · ');
   document.getElementById('descripcion').textContent = p.descripcion || '—';
-  document.getElementById('porte').textContent = p.altura || '—';
-  document.getElementById('hoja').textContent = p.hoja || '—';
-  document.getElementById('fruto').textContent = p.fruto || '—';
-  document.getElementById('propagacion').textContent = p.propagacion || '—';
+
+  setCell('cell-altura',      'porte',                p.altura);
+  setCell('cell-porte-forma', 'porte-forma',          p.porte_forma);
+  setCell('cell-follaje',     'hoja',                 p.hoja);
+  setCell('cell-floracion',   'floracion',            p.floracion);
+  setCell('cell-meses-flor',  'meses-floracion',      p.meses_floracion);
+  setCell('cell-meses-fruc',  'meses-fructificacion', p.meses_fructificacion);
+  setCell('cell-fruto',       'fruto',                p.fruto);
+  setCell('cell-propagacion', 'propagacion',          p.propagacion);
 
   const tagsAmb = document.getElementById('tags-ambiente');
-  tagsAmb.innerHTML = '';
-  if (p.ambiente1) tagsAmb.innerHTML += `<span class="tag-amb-p">${p.ambiente1}</span>`;
-  if (p.ambiente2) tagsAmb.innerHTML += `<span class="tag-amb-s">${p.ambiente2}</span>`;
+  tagsAmb.replaceChildren();
+  if (p.ambiente1) tagsAmb.appendChild(makeTag(p.ambiente1, 'tag-amb-p'));
+  if (p.ambiente2) tagsAmb.appendChild(makeTag(p.ambiente2, 'tag-amb-s'));
 
-  const tagsEco = document.getElementById('tags-eco');
-  tagsEco.innerHTML = '';
-  if (p.valor1) tagsEco.innerHTML += `<span class="tag-eco">${p.valor1}</span>`;
-  if (p.valor2) tagsEco.innerHTML += `<span class="tag-eco">${p.valor2}</span>`;
+  const secEco = document.getElementById('sec-eco');
+  document.getElementById('valor-eco').textContent = p.valor_eco || '';
+  secEco.style.display = p.valor_eco ? 'block' : 'none';
+
+  const secPais = document.getElementById('sec-paisajistico');
+  document.getElementById('valor-paisajistico').textContent = p.valor_paisajistico || '';
+  secPais.style.display = p.valor_paisajistico ? 'block' : 'none';
 
   const fotoEl = document.getElementById('foto-planta');
+  fotoEl.replaceChildren();
   if (p.foto_url && p.foto_url.startsWith('http')) {
-    fotoEl.innerHTML = `<img src="${p.foto_url}" alt="${p.nombre_comun}" onerror="this.parentElement.innerHTML='foto / ilustración'">`;
+    const img = document.createElement('img');
+    img.src = p.foto_url;
+    img.alt = p.nombre_comun;
+    img.onerror = () => { fotoEl.textContent = 'foto / ilustración'; };
+    fotoEl.appendChild(img);
   } else {
-    fotoEl.innerHTML = 'foto / ilustración';
+    fotoEl.textContent = 'foto / ilustración';
   }
 
   document.getElementById('ficha-wrap').style.display = 'block';
