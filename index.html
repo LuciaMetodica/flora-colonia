@@ -16,7 +16,7 @@
     padding: 32px 16px 48px;
   }
 
-  /* HEADER */
+  /* APP HEADER */
   .app-header {
     text-align: center;
     margin-bottom: 32px;
@@ -38,7 +38,7 @@
 
   /* LOADING */
   .loading-state {
-    max-width: 800px;
+    max-width: 860px;
     margin: 60px auto;
     text-align: center;
     color: #555;
@@ -56,7 +56,7 @@
 
   /* ERROR */
   .error-state {
-    max-width: 800px;
+    max-width: 860px;
     margin: 40px auto;
     background: #2a1a1a;
     border: 1px solid #5c2020;
@@ -69,7 +69,7 @@
 
   /* SELECTOR */
   .selector-wrap {
-    max-width: 800px;
+    max-width: 860px;
     margin: 0 auto 28px;
     display: none;
   }
@@ -101,89 +101,218 @@
   .selector-wrap select:focus { border-color: #6abf7b; }
   .selector-wrap select option { background: #272727; }
 
-  /* FICHA */
+  /* FICHA WRAPPER (fuera del A4) */
   .ficha-wrap {
-    max-width: 800px;
+    max-width: 860px;
     margin: 0 auto;
     display: none;
     animation: fadeIn 0.3s ease;
   }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
+  /* FICHA A4 — 794×1122px exacto (96dpi) */
   #ficha-planta {
-    background-color: #303030;
+    width: 794px;
+    height: 1122px;
+    background-color: #282828;
     color: #fff;
-    padding: 30px;
-    border-radius: 16px;
+    padding: 40px 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+    border-radius: 4px;
   }
 
+  /* BANDA SUPERIOR */
+  .ficha-banda {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #3a3a3a;
+    margin-bottom: 22px;
+    flex-shrink: 0;
+  }
+  .ficha-banda .serie {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: #6abf7b;
+  }
+  .ficha-banda .titulo-app {
+    font-size: 10px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+
+  /* HEADER: foto + datos */
   .ficha-header {
     display: flex;
-    gap: 24px;
-    margin-bottom: 30px;
+    gap: 28px;
+    margin-bottom: 22px;
+    flex-shrink: 0;
+    height: 200px;
   }
 
   .ficha-foto {
     width: 200px;
     min-width: 200px;
-    height: 160px;
-    background-color: #242424;
-    border: 1px dashed #505050;
-    border-radius: 12px;
+    height: 200px;
+    background-color: #1e1e1e;
+    border: 1px dashed #404040;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #666;
-    font-size: 13px;
+    color: #555;
+    font-size: 12px;
     overflow: hidden;
     flex-shrink: 0;
   }
   .ficha-foto img {
     width: 100%; height: 100%;
     object-fit: cover;
-    border-radius: 12px;
+    border-radius: 7px;
   }
 
-  .ficha-meta { display: flex; flex-direction: column; justify-content: center; }
-  .ficha-meta h1 { font-size: 30px; font-weight: 700; margin-bottom: 6px; line-height: 1.1; }
-  .ficha-meta h2 { font-size: 17px; font-style: italic; color: #c8c8c8; font-weight: 400; margin-bottom: 4px; }
-  .ficha-meta .familia { font-size: 13px; color: #888; margin-bottom: 16px; }
+  .ficha-meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    min-width: 0;
+  }
+  .ficha-meta h1 {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ficha-meta h2 {
+    font-size: 15px;
+    font-style: italic;
+    color: #b0b0b0;
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+  .ficha-meta .familia-tipo {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+  .tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .tag-amb-p {
+    background: #1a4a2a;
+    color: #6abf7b;
+    border: 1px solid #2d6e40;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag-amb-s {
+    background: #222;
+    color: #999;
+    border: 1px solid #3a3a3a;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+  }
 
-  .tags { display: flex; gap: 8px; flex-wrap: wrap; }
-  .tag-amb-p { background: #F0FDF4; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-  .tag-amb-s { background: #242424; color: #ccc; padding: 4px 12px; border-radius: 20px; font-size: 12px; border: 1px solid #444; }
-
+  /* SECCIONES */
   .sec-label {
-    font-size: 11px; color: #666; text-transform: uppercase;
-    font-weight: 700; letter-spacing: 1.5px; margin-bottom: 8px;
+    font-size: 9px;
+    color: #555;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 7px;
   }
 
-  .ficha-desc { margin-bottom: 24px; }
-  .ficha-desc p { font-size: 15px; line-height: 1.6; color: #efefef; }
+  /* DESCRIPCIÓN */
+  .ficha-desc {
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+  .ficha-desc p {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #d8d8d8;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
+  /* GRID DATOS */
   .ficha-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 28px;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-shrink: 0;
   }
   .grid-cell {
-    background: #242424;
-    padding: 14px 16px;
-    border-radius: 12px;
+    background: #1e1e1e;
+    padding: 10px 14px;
+    border-radius: 8px;
   }
-  .grid-cell .cell-label { font-size: 10px; color: #666; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; }
-  .grid-cell .cell-val { font-size: 15px; font-weight: 500; color: #f0f0f0; }
+  .grid-cell .cell-label {
+    font-size: 9px;
+    color: #555;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .grid-cell .cell-val {
+    font-size: 13px;
+    font-weight: 500;
+    color: #e0e0e0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .grid-cell .cell-val.empty {
+    color: #3a3a3a;
+  }
 
-  .ficha-eco { margin-bottom: 20px; }
-  .ficha-eco p { font-size: 14px; line-height: 1.6; color: #efefef; margin-top: 8px; }
+  /* VALORES */
+  .ficha-valores {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+  }
+  .ficha-eco, .ficha-paisajistico {
+    min-height: 0;
+  }
+  .ficha-eco p, .ficha-paisajistico p {
+    font-size: 12px;
+    line-height: 1.55;
+    color: #c0c0c0;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .ficha-eco p.empty, .ficha-paisajistico p.empty {
+    color: #333;
+  }
 
-  .ficha-paisajistico { margin-bottom: 20px; }
-  .ficha-paisajistico p { font-size: 14px; line-height: 1.6; color: #efefef; margin-top: 8px; }
-
-  .grid-cell.hidden { display: none; }
-
-  /* FOOTER BOTÓN */
+  /* FOOTER BOTÓN (fuera de la ficha A4) */
   .ficha-footer {
     margin-top: 16px;
     display: flex;
@@ -205,13 +334,11 @@
   }
   .btn-descargar:hover { background: #1a7a3f; }
   .btn-descargar:active { transform: scale(0.98); }
+  .btn-descargar:disabled { opacity: 0.6; cursor: default; }
 
-  /* RESPONSIVE */
-  @media (max-width: 560px) {
-    .ficha-header { flex-direction: column; }
-    .ficha-foto { width: 100%; min-width: unset; height: 180px; }
-    .ficha-grid { grid-template-columns: 1fr; }
-    .ficha-meta h1 { font-size: 24px; }
+  /* SCROLL HORIZONTAL en pantallas chicas */
+  @media (max-width: 860px) {
+    .ficha-wrap { overflow-x: auto; }
   }
 </style>
 </head>
@@ -238,42 +365,55 @@
 
 <div class="ficha-wrap" id="ficha-wrap">
   <div id="ficha-planta">
+
+    <div class="ficha-banda">
+      <span class="serie" id="banda-serie">Flora Nativa · Colonia</span>
+      <span class="titulo-app">Fichas Técnicas</span>
+    </div>
+
     <div class="ficha-header">
       <div class="ficha-foto" id="foto-planta">foto / ilustración</div>
       <div class="ficha-meta">
         <h1 id="nombre-comun"></h1>
         <h2 id="nombre-cientifico"></h2>
-        <p class="familia" id="familia-tipo"></p>
+        <p class="familia-tipo" id="familia-tipo"></p>
         <div class="tags" id="tags-ambiente"></div>
       </div>
     </div>
+
     <div class="ficha-desc">
       <div class="sec-label">Descripción</div>
       <p id="descripcion"></p>
     </div>
+
     <div class="ficha-grid">
-      <div class="grid-cell" id="cell-altura"><div class="cell-label">Altura</div><div class="cell-val" id="porte"></div></div>
-      <div class="grid-cell" id="cell-porte-forma"><div class="cell-label">Porte y forma</div><div class="cell-val" id="porte-forma"></div></div>
-      <div class="grid-cell" id="cell-follaje"><div class="cell-label">Follaje</div><div class="cell-val" id="hoja"></div></div>
-      <div class="grid-cell" id="cell-floracion"><div class="cell-label">Floración</div><div class="cell-val" id="floracion"></div></div>
-      <div class="grid-cell" id="cell-meses-flor"><div class="cell-label">Meses floración</div><div class="cell-val" id="meses-floracion"></div></div>
-      <div class="grid-cell" id="cell-meses-fruc"><div class="cell-label">Meses fructificación</div><div class="cell-val" id="meses-fructificacion"></div></div>
-      <div class="grid-cell" id="cell-fruto"><div class="cell-label">Fruto</div><div class="cell-val" id="fruto"></div></div>
-      <div class="grid-cell" id="cell-propagacion"><div class="cell-label">Propagación</div><div class="cell-val" id="propagacion"></div></div>
+      <div class="grid-cell"><div class="cell-label">Altura</div><div class="cell-val" id="porte"></div></div>
+      <div class="grid-cell"><div class="cell-label">Porte y forma</div><div class="cell-val" id="porte-forma"></div></div>
+      <div class="grid-cell"><div class="cell-label">Follaje</div><div class="cell-val" id="hoja"></div></div>
+      <div class="grid-cell"><div class="cell-label">Floración</div><div class="cell-val" id="floracion"></div></div>
+      <div class="grid-cell"><div class="cell-label">Meses floración</div><div class="cell-val" id="meses-floracion"></div></div>
+      <div class="grid-cell"><div class="cell-label">Meses fructificación</div><div class="cell-val" id="meses-fructificacion"></div></div>
+      <div class="grid-cell"><div class="cell-label">Fruto</div><div class="cell-val" id="fruto"></div></div>
+      <div class="grid-cell"><div class="cell-label">Propagación</div><div class="cell-val" id="propagacion"></div></div>
     </div>
-    <div class="ficha-eco" id="sec-eco">
-      <div class="sec-label">Valor Ecosistémico</div>
-      <p id="valor-eco"></p>
+
+    <div class="ficha-valores">
+      <div class="ficha-eco">
+        <div class="sec-label">Valor Ecosistémico</div>
+        <p id="valor-eco"></p>
+      </div>
+      <div class="ficha-paisajistico">
+        <div class="sec-label">Valor Paisajístico</div>
+        <p id="valor-paisajistico"></p>
+      </div>
     </div>
-    <div class="ficha-paisajistico" id="sec-paisajistico">
-      <div class="sec-label">Valor Paisajístico</div>
-      <p id="valor-paisajistico"></p>
-    </div>
+
   </div>
+
   <div class="ficha-footer">
     <button class="btn-descargar" id="btn-descargar">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Descargar ficha (PNG)
+      Descargar ficha A4 (PNG)
     </button>
   </div>
 </div>
@@ -306,7 +446,7 @@ const COLS = {
 };
 
 function norm(s) {
-  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
 }
 
 function findCol(headers, keys) {
@@ -387,9 +527,15 @@ async function init() {
   }
 }
 
-function setCell(cellId, valId, value) {
-  document.getElementById(valId).textContent = value || '—';
-  document.getElementById(cellId).classList.toggle('hidden', !value);
+function setVal(id, value) {
+  const el = document.getElementById(id);
+  if (value) {
+    el.textContent = value;
+    el.classList.remove('empty');
+  } else {
+    el.textContent = '—';
+    el.classList.add('empty');
+  }
 }
 
 function makeTag(text, cls) {
@@ -405,32 +551,29 @@ function mostrarFicha() {
   const p = plantas[idx];
   nombreActual = p.nombre_comun;
 
+  document.getElementById('banda-serie').textContent =
+    (p.tipo ? p.tipo + ' · ' : '') + 'Flora Nativa · Colonia';
+
   document.getElementById('nombre-comun').textContent = p.nombre_comun || '—';
   document.getElementById('nombre-cientifico').textContent = p.nombre_cientifico || '';
-  document.getElementById('familia-tipo').textContent = [p.familia, p.tipo].filter(Boolean).join(' · ');
-  document.getElementById('descripcion').textContent = p.descripcion || '—';
-
-  setCell('cell-altura',      'porte',                p.altura);
-  setCell('cell-porte-forma', 'porte-forma',          p.porte_forma);
-  setCell('cell-follaje',     'hoja',                 p.hoja);
-  setCell('cell-floracion',   'floracion',            p.floracion);
-  setCell('cell-meses-flor',  'meses-floracion',      p.meses_floracion);
-  setCell('cell-meses-fruc',  'meses-fructificacion', p.meses_fructificacion);
-  setCell('cell-fruto',       'fruto',                p.fruto);
-  setCell('cell-propagacion', 'propagacion',          p.propagacion);
+  document.getElementById('familia-tipo').textContent = p.familia || '';
 
   const tagsAmb = document.getElementById('tags-ambiente');
   tagsAmb.replaceChildren();
   if (p.ambiente1) tagsAmb.appendChild(makeTag(p.ambiente1, 'tag-amb-p'));
   if (p.ambiente2) tagsAmb.appendChild(makeTag(p.ambiente2, 'tag-amb-s'));
 
-  const secEco = document.getElementById('sec-eco');
-  document.getElementById('valor-eco').textContent = p.valor_eco || '';
-  secEco.style.display = p.valor_eco ? 'block' : 'none';
-
-  const secPais = document.getElementById('sec-paisajistico');
-  document.getElementById('valor-paisajistico').textContent = p.valor_paisajistico || '';
-  secPais.style.display = p.valor_paisajistico ? 'block' : 'none';
+  setVal('descripcion',         p.descripcion);
+  setVal('porte',               p.altura);
+  setVal('porte-forma',         p.porte_forma);
+  setVal('hoja',                p.hoja);
+  setVal('floracion',           p.floracion);
+  setVal('meses-floracion',     p.meses_floracion);
+  setVal('meses-fructificacion',p.meses_fructificacion);
+  setVal('fruto',               p.fruto);
+  setVal('propagacion',         p.propagacion);
+  setVal('valor-eco',           p.valor_eco);
+  setVal('valor-paisajistico',  p.valor_paisajistico);
 
   const fotoEl = document.getElementById('foto-planta');
   fotoEl.replaceChildren();
@@ -452,13 +595,23 @@ document.getElementById('btn-descargar').addEventListener('click', function() {
   const btn = this;
   btn.textContent = 'Generando…';
   btn.disabled = true;
-  html2canvas(tarjeta, { backgroundColor: '#303030', scale: 2, logging: false, useCORS: true }).then(canvas => {
+
+  html2canvas(tarjeta, {
+    backgroundColor: '#282828',
+    scale: 3,
+    logging: false,
+    useCORS: true,
+    width: 794,
+    height: 1122,
+  }).then(canvas => {
     const enlace = document.createElement('a');
     const nombre = nombreActual.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]/g,'').trim().replace(/\s+/g,'_');
-    enlace.download = `Ficha_${nombre}.png`;
+    enlace.download = 'Ficha_' + nombre + '.png';
     enlace.href = canvas.toDataURL('image/png');
     enlace.click();
-    btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Descargar ficha (PNG)`;
+
+    const svg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+    btn.innerHTML = svg + ' Descargar ficha A4 (PNG)';
     btn.disabled = false;
   });
 });
