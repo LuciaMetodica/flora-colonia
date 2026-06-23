@@ -1,352 +1,369 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-tema="oscuro">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Flora Nativa · Colonia, Uruguay</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
+  /* ── TOKENS ─────────────────────────────────────── */
+  :root {
+    --bg-app:        #1c1c1c;
+    --bg-ficha:      #252525;
+    --bg-cell:       #1a1a1a;
+    --bg-cell-hover: #222;
+    --border:        #333;
+    --border-light:  #2e2e2e;
+    --text-main:     #f0f0f0;
+    --text-sec:      #aaa;
+    --text-dim:      #555;
+    --text-label:    #606060;
+    --accent:        #7ecf8e;
+    --accent-bg:     #1a3d24;
+    --accent-border: #2d5e38;
+    --tag-sec-bg:    #222;
+    --tag-sec-color: #999;
+    --tag-sec-border:#333;
+    --badge-bg:      #2a2218;
+    --badge-color:   #c8a96e;
+    --badge-border:  #4a3c28;
+    --feno-inactive: #2a2a2a;
+    --feno-brot:     #7ecf8e;
+    --feno-flor:     #e8a040;
+    --feno-fruc:     #4ab8b8;
+    --shadow:        0 2px 16px rgba(0,0,0,.4);
+  }
+  [data-tema="claro"] {
+    --bg-app:        #f0ece4;
+    --bg-ficha:      #faf7f2;
+    --bg-cell:       #edeae3;
+    --bg-cell-hover: #e5e2da;
+    --border:        #d4cfc6;
+    --border-light:  #e2ddd4;
+    --text-main:     #1a1a10;
+    --text-sec:      #5a5a4a;
+    --text-dim:      #bab8b0;
+    --text-label:    #8a8a7a;
+    --accent:        #2a7a3e;
+    --accent-bg:     #e8f5ec;
+    --accent-border: #9ad4aa;
+    --tag-sec-bg:    #e8e4dc;
+    --tag-sec-color: #6a6a5a;
+    --tag-sec-border:#d0ccc4;
+    --badge-bg:      #fdf4e4;
+    --badge-color:   #8a6020;
+    --badge-border:  #e0c880;
+    --feno-inactive: #ddd9d0;
+    --feno-brot:     #3a9a50;
+    --feno-flor:     #d08020;
+    --feno-fruc:     #2a9090;
+    --shadow:        0 2px 16px rgba(0,0,0,.12);
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: #1c1c1c;
+    background: var(--bg-app);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    color: #fff;
+    color: var(--text-main);
     min-height: 100vh;
-    padding: 32px 16px 48px;
+    padding: 32px 16px 56px;
+    transition: background .3s, color .3s;
   }
 
-  /* APP HEADER */
-  .app-header {
-    text-align: center;
-    margin-bottom: 32px;
-  }
-  .app-header .eyebrow {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    color: #6abf7b;
-    margin-bottom: 6px;
-  }
-  .app-header h1 {
-    font-size: 22px;
-    font-weight: 700;
-    color: #f2f2f2;
-    letter-spacing: -0.3px;
-  }
-
-  /* LOADING */
-  .loading-state {
+  /* ── APP HEADER ──────────────────────────────────── */
+  .app-top {
     max-width: 860px;
-    margin: 60px auto;
-    text-align: center;
-    color: #555;
+    margin: 0 auto 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .app-top-title { text-align: left; }
+  .app-top-title .eyebrow {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 3px; color: var(--accent); margin-bottom: 4px;
+  }
+  .app-top-title h1 {
+    font-size: 20px; font-weight: 700;
+    color: var(--text-main); letter-spacing: -.3px;
+  }
+
+  .btn-tema {
+    background: var(--bg-cell);
+    border: 1px solid var(--border);
+    color: var(--text-sec);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: background .2s, color .2s;
+    white-space: nowrap;
+  }
+  .btn-tema:hover { color: var(--text-main); }
+
+  /* ── LOADING / ERROR ──────────────────────────────── */
+  .loading-state {
+    max-width: 860px; margin: 60px auto; text-align: center; color: var(--text-dim);
   }
   .loading-state .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid #333;
-    border-top-color: #6abf7b;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 16px;
+    width: 32px; height: 32px; border: 3px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin .8s linear infinite; margin: 0 auto 16px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-state p { font-size: 14px; }
 
-  /* ERROR */
   .error-state {
-    max-width: 860px;
-    margin: 40px auto;
-    background: #2a1a1a;
-    border: 1px solid #5c2020;
-    border-radius: 12px;
-    padding: 20px 24px;
-    color: #f87171;
-    font-size: 14px;
-    display: none;
+    max-width: 860px; margin: 40px auto;
+    background: #2a1a1a; border: 1px solid #5c2020;
+    border-radius: 12px; padding: 20px 24px;
+    color: #f87171; font-size: 14px; display: none;
   }
 
-  /* SELECTOR */
-  .selector-wrap {
-    max-width: 860px;
-    margin: 0 auto 28px;
-    display: none;
-  }
+  /* ── SELECTOR ─────────────────────────────────────── */
+  .selector-wrap { max-width: 860px; margin: 0 auto 24px; display: none; }
   .selector-wrap label {
-    display: block;
-    font-size: 11px;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-weight: 700;
-    margin-bottom: 8px;
+    display: block; font-size: 10px; color: var(--text-label);
+    text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 7px;
   }
   .selector-wrap select {
-    width: 100%;
-    background: #272727;
-    border: 1px solid #3a3a3a;
-    border-radius: 10px;
-    color: #f0f0f0;
-    padding: 13px 40px 13px 16px;
-    font-size: 15px;
-    outline: none;
-    cursor: pointer;
-    transition: border-color 0.2s;
-    appearance: none;
+    width: 100%; background: var(--bg-cell);
+    border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text-main); padding: 12px 40px 12px 16px;
+    font-size: 15px; outline: none; cursor: pointer;
+    transition: border-color .2s; appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
+    background-repeat: no-repeat; background-position: right 14px center;
   }
-  .selector-wrap select:focus { border-color: #6abf7b; }
-  .selector-wrap select option { background: #272727; }
+  .selector-wrap select:focus { border-color: var(--accent); }
+  .selector-wrap select option { background: var(--bg-cell); }
 
-  /* FICHA WRAPPER (fuera del A4) */
-  .ficha-wrap {
-    max-width: 860px;
-    margin: 0 auto;
-    display: none;
-    animation: fadeIn 0.3s ease;
-  }
+  /* ── FICHA WRAP ───────────────────────────────────── */
+  .ficha-wrap { max-width: 860px; margin: 0 auto; display: none; animation: fadeIn .3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* FICHA A4 — 794×1122px exacto (96dpi) */
+  /* ── FICHA A4 (794 × 1122 px) ─────────────────────── */
   #ficha-planta {
     width: 794px;
     height: 1122px;
-    background-color: #282828;
-    color: #fff;
-    padding: 40px 44px;
+    background: var(--bg-ficha);
+    color: var(--text-main);
+    padding: 40px 44px 36px;
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 18px;
     overflow: hidden;
-    border-radius: 4px;
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+    transition: background .3s, color .3s, box-shadow .3s;
   }
 
-  /* BANDA SUPERIOR */
-  .ficha-banda {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #3a3a3a;
-    margin-bottom: 22px;
+  /* ── BADGE SECCIÓN ────────────────────────────────── */
+  .ficha-badge {
+    align-self: flex-start;
+    background: var(--badge-bg);
+    color: var(--badge-color);
+    border: 1px solid var(--badge-border);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
     flex-shrink: 0;
   }
-  .ficha-banda .serie {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2.5px;
-    color: #6abf7b;
-  }
-  .ficha-banda .titulo-app {
-    font-size: 10px;
-    color: #555;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: 600;
-  }
 
-  /* HEADER: foto + datos */
+  /* ── HEADER: foto + datos ─────────────────────────── */
   .ficha-header {
     display: flex;
     gap: 28px;
-    margin-bottom: 22px;
     flex-shrink: 0;
-    height: 200px;
   }
 
   .ficha-foto {
-    width: 200px;
-    min-width: 200px;
-    height: 200px;
-    background-color: #1e1e1e;
-    border: 1px dashed #404040;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #555;
-    font-size: 12px;
-    overflow: hidden;
-    flex-shrink: 0;
+    width: 190px; min-width: 190px; height: 190px;
+    background: var(--bg-cell);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim); font-size: 12px;
+    overflow: hidden; flex-shrink: 0;
   }
-  .ficha-foto img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    border-radius: 7px;
-  }
+  .ficha-foto img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
 
   .ficha-meta {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex: 1;
-    min-width: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    flex: 1; min-width: 0;
   }
   .ficha-meta h1 {
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1.1;
-    margin-bottom: 5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 38px; font-weight: 700; line-height: 1.05;
+    margin-bottom: 6px; letter-spacing: -.5px;
+    color: var(--text-main);
   }
   .ficha-meta h2 {
-    font-size: 15px;
-    font-style: italic;
-    color: #b0b0b0;
-    font-weight: 400;
-    margin-bottom: 4px;
+    font-size: 16px; font-style: italic;
+    color: var(--text-sec); font-weight: 400; margin-bottom: 4px;
   }
   .ficha-meta .familia-tipo {
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 16px;
+    font-size: 13px; color: var(--text-label); margin-bottom: 14px;
   }
-  .tags {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
+
+  .tags { display: flex; gap: 8px; flex-wrap: wrap; }
   .tag-amb-p {
-    background: #1a4a2a;
-    color: #6abf7b;
-    border: 1px solid #2d6e40;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
+    background: var(--accent-bg); color: var(--accent);
+    border: 1px solid var(--accent-border);
+    padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
   }
   .tag-amb-s {
-    background: #222;
-    color: #999;
-    border: 1px solid #3a3a3a;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
+    background: var(--tag-sec-bg); color: var(--tag-sec-color);
+    border: 1px solid var(--tag-sec-border);
+    padding: 5px 14px; border-radius: 20px; font-size: 12px;
   }
 
-  /* SECCIONES */
+  /* ── SECCIÓN LABEL ────────────────────────────────── */
   .sec-label {
-    font-size: 9px;
-    color: #555;
-    text-transform: uppercase;
-    font-weight: 700;
-    letter-spacing: 2px;
-    margin-bottom: 7px;
+    font-size: 10px; color: var(--text-label);
+    text-transform: uppercase; font-weight: 700;
+    letter-spacing: 2px; margin-bottom: 8px;
   }
 
-  /* DESCRIPCIÓN */
-  .ficha-desc {
-    margin-bottom: 20px;
-    flex-shrink: 0;
-  }
+  /* ── DESCRIPCIÓN ──────────────────────────────────── */
+  .ficha-desc { flex-shrink: 0; }
   .ficha-desc p {
-    font-size: 13px;
-    line-height: 1.55;
-    color: #d8d8d8;
-    display: -webkit-box;
-    -webkit-line-clamp: 5;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  /* GRID DATOS */
-  .ficha-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 20px;
-    flex-shrink: 0;
-  }
-  .grid-cell {
-    background: #1e1e1e;
-    padding: 10px 14px;
-    border-radius: 8px;
-  }
-  .grid-cell .cell-label {
-    font-size: 9px;
-    color: #555;
-    text-transform: uppercase;
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-  }
-  .grid-cell .cell-val {
-    font-size: 13px;
-    font-weight: 500;
-    color: #e0e0e0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .grid-cell .cell-val.empty {
-    color: #3a3a3a;
-  }
-
-  /* VALORES */
-  .ficha-valores {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    flex: 1;
-    min-height: 0;
-  }
-  .ficha-eco, .ficha-paisajistico {
-    min-height: 0;
-  }
-  .ficha-eco p, .ficha-paisajistico p {
-    font-size: 12px;
-    line-height: 1.55;
-    color: #c0c0c0;
+    font-size: 14px; line-height: 1.6; color: var(--text-sec);
     display: -webkit-box;
     -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .ficha-eco p.empty, .ficha-paisajistico p.empty {
-    color: #333;
+  .ficha-desc p.empty { color: var(--text-dim); }
+
+  /* ── GRID DATOS ───────────────────────────────────── */
+  .ficha-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .grid-cell {
+    background: var(--bg-cell);
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    transition: background .3s, border-color .3s;
+  }
+  .grid-cell .cell-label {
+    font-size: 9px; color: var(--text-label);
+    text-transform: uppercase; font-weight: 700;
+    letter-spacing: 1.5px; margin-bottom: 5px;
+  }
+  .grid-cell .cell-val {
+    font-size: 14px; font-weight: 500; color: var(--text-main);
+  }
+  .grid-cell .cell-val.empty { color: var(--text-dim); }
+
+  /* ── FENOLOGÍA ────────────────────────────────────── */
+  .ficha-fenologia { flex-shrink: 0; }
+
+  .feno-row { margin-bottom: 6px; }
+  .feno-meses-label {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 3px;
+    margin-bottom: 3px;
+  }
+  .feno-mes-lbl {
+    font-size: 9px; color: var(--text-dim);
+    font-weight: 700; text-align: center; letter-spacing: 0;
+  }
+  .feno-barras {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 3px;
+  }
+  .feno-bar {
+    height: 18px;
+    border-radius: 4px;
+    background: var(--feno-inactive);
+    transition: background .3s;
+  }
+  .feno-bar.brot { background: var(--feno-brot); }
+  .feno-bar.flor { background: var(--feno-flor); }
+  .feno-bar.fruc { background: var(--feno-fruc); }
+
+  .feno-leyenda {
+    display: flex; gap: 18px; margin-top: 8px;
+  }
+  .leyenda-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--text-sec);
+  }
+  .leyenda-dot {
+    width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;
+  }
+  .leyenda-dot.brot { background: var(--feno-brot); }
+  .leyenda-dot.flor { background: var(--feno-flor); }
+  .leyenda-dot.fruc { background: var(--feno-fruc); }
+
+  /* ── VALORES ──────────────────────────────────────── */
+  .ficha-eco, .ficha-paisajistico { flex-shrink: 0; }
+  .ficha-eco p, .ficha-paisajistico p {
+    font-size: 13px; line-height: 1.55; color: var(--text-sec);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .ficha-eco p.empty, .ficha-paisajistico p.empty { color: var(--text-dim); }
+
+  /* ── FOOTER DENTRO DE LA FICHA ───────────────────── */
+  .ficha-footer-inner {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: .5px;
   }
 
-  /* FOOTER BOTÓN (fuera de la ficha A4) */
+  /* ── BOTÓN DESCARGA (fuera de la ficha) ──────────── */
   .ficha-footer {
     margin-top: 16px;
     display: flex;
     justify-content: flex-end;
   }
   .btn-descargar {
-    background: #166534;
-    color: #fff;
-    border: none;
-    padding: 12px 24px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    padding: 11px 22px;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.2s;
+    display: flex; align-items: center; gap: 8px;
+    transition: background .2s;
   }
-  .btn-descargar:hover { background: #1a7a3f; }
-  .btn-descargar:active { transform: scale(0.98); }
-  .btn-descargar:disabled { opacity: 0.6; cursor: default; }
+  .btn-descargar:hover { background: var(--accent-border); }
+  .btn-descargar:disabled { opacity: .5; cursor: default; }
 
-  /* SCROLL HORIZONTAL en pantallas chicas */
-  @media (max-width: 860px) {
-    .ficha-wrap { overflow-x: auto; }
-  }
+  /* ── RESPONSIVE ───────────────────────────────────── */
+  @media (max-width: 860px) { .ficha-wrap { overflow-x: auto; } }
 </style>
 </head>
 <body>
 
-<div class="app-header">
-  <div class="eyebrow">Colonia · Uruguay</div>
-  <h1>Flora Nativa — Fichas Técnicas</h1>
+<div class="app-top">
+  <div class="app-top-title">
+    <div class="eyebrow">Colonia · Uruguay</div>
+    <h1>Flora Nativa — Fichas Técnicas</h1>
+  </div>
+  <button class="btn-tema" id="btn-tema" onclick="toggleTema()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    Modo claro
+  </button>
 </div>
 
 <div class="loading-state" id="loading">
@@ -366,10 +383,7 @@
 <div class="ficha-wrap" id="ficha-wrap">
   <div id="ficha-planta">
 
-    <div class="ficha-banda">
-      <span class="serie" id="banda-serie">Flora Nativa · Colonia</span>
-      <span class="titulo-app">Fichas Técnicas</span>
-    </div>
+    <div class="ficha-badge" id="ficha-badge">—</div>
 
     <div class="ficha-header">
       <div class="ficha-foto" id="foto-planta">foto / ilustración</div>
@@ -387,32 +401,45 @@
     </div>
 
     <div class="ficha-grid">
-      <div class="grid-cell"><div class="cell-label">Altura</div><div class="cell-val" id="porte"></div></div>
-      <div class="grid-cell"><div class="cell-label">Porte y forma</div><div class="cell-val" id="porte-forma"></div></div>
+      <div class="grid-cell"><div class="cell-label">Porte adulto</div><div class="cell-val" id="porte"></div></div>
       <div class="grid-cell"><div class="cell-label">Follaje</div><div class="cell-val" id="hoja"></div></div>
-      <div class="grid-cell"><div class="cell-label">Floración</div><div class="cell-val" id="floracion"></div></div>
-      <div class="grid-cell"><div class="cell-label">Meses floración</div><div class="cell-val" id="meses-floracion"></div></div>
-      <div class="grid-cell"><div class="cell-label">Meses fructificación</div><div class="cell-val" id="meses-fructificacion"></div></div>
       <div class="grid-cell"><div class="cell-label">Fruto</div><div class="cell-val" id="fruto"></div></div>
       <div class="grid-cell"><div class="cell-label">Propagación</div><div class="cell-val" id="propagacion"></div></div>
     </div>
 
-    <div class="ficha-valores">
-      <div class="ficha-eco">
-        <div class="sec-label">Valor Ecosistémico</div>
-        <p id="valor-eco"></p>
+    <div class="ficha-fenologia" id="sec-fenologia">
+      <div class="sec-label">Fenología</div>
+      <div class="feno-row">
+        <div class="feno-meses-label" id="feno-label-1"></div>
+        <div class="feno-barras" id="feno-row-flor"></div>
       </div>
-      <div class="ficha-paisajistico">
-        <div class="sec-label">Valor Paisajístico</div>
-        <p id="valor-paisajistico"></p>
+      <div class="feno-row">
+        <div class="feno-meses-label" id="feno-label-2"></div>
+        <div class="feno-barras" id="feno-row-fruc"></div>
+      </div>
+      <div class="feno-leyenda">
+        <div class="leyenda-item"><div class="leyenda-dot flor"></div>Floración</div>
+        <div class="leyenda-item"><div class="leyenda-dot fruc"></div>Fructificación</div>
       </div>
     </div>
+
+    <div class="ficha-eco">
+      <div class="sec-label">Valor Ecosistémico</div>
+      <p id="valor-eco"></p>
+    </div>
+
+    <div class="ficha-paisajistico">
+      <div class="sec-label">Valor Paisajístico</div>
+      <p id="valor-paisajistico"></p>
+    </div>
+
+    <div class="ficha-footer-inner" id="ficha-footer-label">Flora Nativa · Colonia, Uruguay</div>
 
   </div>
 
   <div class="ficha-footer">
     <button class="btn-descargar" id="btn-descargar">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Descargar ficha A4 (PNG)
     </button>
   </div>
@@ -420,29 +447,29 @@
 
 <script>
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT5zpC6JyPcXiqiUtLkLk7ndjLaGCchFlSiZAtB3JHRzGALgH61yIk6fC1Tz9NDMLUfcLFiC1OBoGfC/pub?output=csv';
+const MESES_SIGLAS = ['E','F','M','A','M','J','J','A','S','O','N','D'];
 
 let plantas = [];
 let nombreActual = '';
 
 const COLS = {
-  nombre_comun:          ['nombre comun','nombre común','nombre_comun','nombre_común','comun','común'],
-  nombre_cientifico:     ['nombre cientifico','nombre científico','nombre_cientifico','nombre_científico','cientifico','científico'],
-  familia:               ['familia'],
-  tipo:                  ['tipo','seccion','sección'],
-  ambiente1:             ['ambiente principal','ambiente1','ambiente 1'],
-  ambiente2:             ['ambiente secundario','ambiente2','ambiente 2'],
-  descripcion:           ['rasgo clave','descripcion','descripción','rasgo','descripcion rasgo'],
-  altura:                ['altura'],
-  porte_forma:           ['porte y forma','porte forma','porte_forma'],
-  hoja:                  ['follaje','hoja','tipo hoja','tipo de hoja'],
-  floracion:             ['floración','floracion'],
-  meses_floracion:       ['meses floración','meses floracion','meses_floracion'],
-  meses_fructificacion:  ['meses fructificación','meses fructificacion'],
-  fruto:                 ['fruto','tipo fruto','tipo de fruto'],
-  propagacion:           ['propagacion','propagación','metodo propagacion'],
-  valor_eco:             ['valor ecosistémico','valor ecosistemico','valor1','valor 1'],
-  valor_paisajistico:    ['valor paisajístico','valor paisajistico'],
-  foto_url:              ['foto (url pública)','foto (url publica)','foto url','foto_url','foto','imagen','image','url foto'],
+  nombre_comun:         ['nombre comun','nombre común','nombre_comun','nombre_común','comun','común'],
+  nombre_cientifico:    ['nombre cientifico','nombre científico','cientifico','científico'],
+  familia:              ['familia'],
+  seccion:              ['sección','seccion'],
+  ambiente_raw:         ['ambiente principal','ambiente1','ambiente 1'],
+  descripcion:          ['rasgo clave','descripcion','descripción','rasgo'],
+  altura:               ['altura'],
+  porte_forma:          ['porte y forma','porte forma'],
+  hoja:                 ['follaje','hoja','tipo hoja'],
+  floracion:            ['floración','floracion'],
+  meses_floracion:      ['meses floración','meses floracion'],
+  meses_fructificacion: ['meses fructificación','meses fructificacion'],
+  fruto:                ['fruto','tipo fruto'],
+  propagacion:          ['propagacion','propagación'],
+  valor_eco:            ['valor ecosistémico','valor ecosistemico'],
+  valor_paisajistico:   ['valor paisajístico','valor paisajistico'],
+  foto_url:             ['foto (url pública)','foto (url publica)','foto url','foto_url','foto','imagen'],
 };
 
 function norm(s) {
@@ -487,6 +514,80 @@ function parseCSV(text) {
   }).filter(p => p.nombre_comun);
 }
 
+// Convierte "3 - Monte de parque / 5 - Pedregales" → ["Monte de parque", "Pedregales"]
+function parseAmbientes(raw) {
+  if (!raw) return [];
+  return raw.split('/').map(s => s.trim().replace(/^\d+\s*-\s*/, '').trim()).filter(Boolean);
+}
+
+// Convierte string de meses a Set de índices 0–11
+// Soporta: "1,2,3" | "enero,febrero" | "ene,feb" | "E,F,M"
+const MES_MAP = {
+  'e':1,'ene':1,'enero':1,'jan':1,'january':1,
+  'f':2,'feb':2,'febrero':2,
+  'm':3,'mar':3,'marzo':3,
+  'a':4,'abr':4,'abril':4,'apr':4,
+  'my':5,'may':5,'mayo':5,
+  'jun':6,'junio':6,
+  'jul':7,'julio':7,
+  'ag':8,'ago':8,'agosto':8,'aug':8,
+  's':9,'sep':9,'septiembre':9,'set':9,
+  'o':10,'oct':10,'octubre':10,
+  'n':11,'nov':11,'noviembre':11,
+  'd':12,'dic':12,'diciembre':12,'dec':12,
+};
+
+function parseMeses(str) {
+  if (!str) return new Set();
+  const result = new Set();
+  // Números directos: "1,2,3" o "1-3"
+  if (/^\d/.test(str.trim())) {
+    const nums = str.match(/\d+/g);
+    if (nums) nums.forEach(n => { const v = parseInt(n); if (v >= 1 && v <= 12) result.add(v); });
+    return result;
+  }
+  // Nombres/siglas separados por coma, punto y coma, o espacio
+  const parts = str.split(/[,;\s]+/).map(s => norm(s)).filter(Boolean);
+  parts.forEach(p => { if (MES_MAP[p]) result.add(MES_MAP[p]); });
+  return result;
+}
+
+function renderFenologia(mesesFlor, mesesFruc) {
+  const tieneFlor = mesesFlor.size > 0;
+  const tieneFruc = mesesFruc.size > 0;
+  const sec = document.getElementById('sec-fenologia');
+
+  if (!tieneFlor && !tieneFruc) {
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = 'block';
+
+  ['feno-label-1','feno-label-2'].forEach(id => {
+    const el = document.getElementById(id);
+    el.replaceChildren();
+    MESES_SIGLAS.forEach(s => {
+      const d = document.createElement('div');
+      d.className = 'feno-mes-lbl';
+      d.textContent = s;
+      el.appendChild(d);
+    });
+  });
+
+  function renderRow(containerId, meses, cls) {
+    const el = document.getElementById(containerId);
+    el.replaceChildren();
+    for (let m = 1; m <= 12; m++) {
+      const bar = document.createElement('div');
+      bar.className = 'feno-bar' + (meses.has(m) ? ' ' + cls : '');
+      el.appendChild(bar);
+    }
+  }
+
+  renderRow('feno-row-flor', mesesFlor, 'flor');
+  renderRow('feno-row-fruc', mesesFruc, 'fruc');
+}
+
 function showError(msg) {
   document.getElementById('loading').style.display = 'none';
   const el = document.getElementById('error-msg');
@@ -527,13 +628,13 @@ async function init() {
   }
 }
 
-function setVal(id, value) {
+function setVal(id, value, placeholder) {
   const el = document.getElementById(id);
   if (value) {
     el.textContent = value;
     el.classList.remove('empty');
   } else {
-    el.textContent = '—';
+    el.textContent = placeholder || '—';
     el.classList.add('empty');
   }
 }
@@ -551,30 +652,38 @@ function mostrarFicha() {
   const p = plantas[idx];
   nombreActual = p.nombre_comun;
 
-  document.getElementById('banda-serie').textContent =
-    (p.tipo ? p.tipo + ' · ' : '') + 'Flora Nativa · Colonia';
+  // Badge sección
+  const seccion = (p.seccion || '').replace(/^[^a-záéíóúüñ]/i, s => s).trim();
+  const seccionLabel = seccion ? seccion.charAt(0).toUpperCase() + seccion.slice(1).toLowerCase() : '—';
+  document.getElementById('ficha-badge').textContent = seccionLabel;
 
+  // Identificación
   document.getElementById('nombre-comun').textContent = p.nombre_comun || '—';
   document.getElementById('nombre-cientifico').textContent = p.nombre_cientifico || '';
-  document.getElementById('familia-tipo').textContent = p.familia || '';
+  document.getElementById('familia-tipo').textContent =
+    [p.familia, seccionLabel !== '—' ? seccionLabel.replace(/s$/i,'') : ''].filter(Boolean).join(' · ');
 
+  // Ambientes
+  const ambientes = parseAmbientes(p.ambiente_raw);
   const tagsAmb = document.getElementById('tags-ambiente');
   tagsAmb.replaceChildren();
-  if (p.ambiente1) tagsAmb.appendChild(makeTag(p.ambiente1, 'tag-amb-p'));
-  if (p.ambiente2) tagsAmb.appendChild(makeTag(p.ambiente2, 'tag-amb-s'));
+  ambientes.forEach((amb, i) => tagsAmb.appendChild(makeTag(amb, i === 0 ? 'tag-amb-p' : 'tag-amb-s')));
 
-  setVal('descripcion',         p.descripcion);
-  setVal('porte',               p.altura);
-  setVal('porte-forma',         p.porte_forma);
-  setVal('hoja',                p.hoja);
-  setVal('floracion',           p.floracion);
-  setVal('meses-floracion',     p.meses_floracion);
-  setVal('meses-fructificacion',p.meses_fructificacion);
-  setVal('fruto',               p.fruto);
-  setVal('propagacion',         p.propagacion);
-  setVal('valor-eco',           p.valor_eco);
-  setVal('valor-paisajistico',  p.valor_paisajistico);
+  // Descripción y grid
+  setVal('descripcion', p.descripcion);
+  setVal('porte',       p.altura || p.porte_forma);
+  setVal('hoja',        p.hoja);
+  setVal('fruto',       p.fruto);
+  setVal('propagacion', p.propagacion);
 
+  // Fenología
+  renderFenologia(parseMeses(p.meses_floracion), parseMeses(p.meses_fructificacion));
+
+  // Valores
+  setVal('valor-eco',          p.valor_eco);
+  setVal('valor-paisajistico', p.valor_paisajistico);
+
+  // Foto
   const fotoEl = document.getElementById('foto-planta');
   fotoEl.replaceChildren();
   if (p.foto_url && p.foto_url.startsWith('http')) {
@@ -590,6 +699,16 @@ function mostrarFicha() {
   document.getElementById('ficha-wrap').style.display = 'block';
 }
 
+// Toggle oscuro/claro
+function toggleTema() {
+  const html = document.documentElement;
+  const esOscuro = html.getAttribute('data-tema') === 'oscuro';
+  html.setAttribute('data-tema', esOscuro ? 'claro' : 'oscuro');
+  const btn = document.getElementById('btn-tema');
+  btn.querySelector('span') && (btn.querySelector('span').textContent = esOscuro ? 'Modo oscuro' : 'Modo claro');
+  btn.lastChild.textContent = esOscuro ? ' Modo oscuro' : ' Modo claro';
+}
+
 document.getElementById('btn-descargar').addEventListener('click', function() {
   const tarjeta = document.getElementById('ficha-planta');
   const btn = this;
@@ -597,7 +716,7 @@ document.getElementById('btn-descargar').addEventListener('click', function() {
   btn.disabled = true;
 
   html2canvas(tarjeta, {
-    backgroundColor: '#282828',
+    backgroundColor: getComputedStyle(tarjeta).backgroundColor,
     scale: 3,
     logging: false,
     useCORS: true,
@@ -610,8 +729,7 @@ document.getElementById('btn-descargar').addEventListener('click', function() {
     enlace.href = canvas.toDataURL('image/png');
     enlace.click();
 
-    const svg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
-    btn.innerHTML = svg + ' Descargar ficha A4 (PNG)';
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Descargar ficha A4 (PNG)';
     btn.disabled = false;
   });
 });
