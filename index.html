@@ -295,34 +295,36 @@
   /* ── FENOLOGÍA ────────────────────────────────────── */
   .ficha-fenologia { flex-shrink: 0; }
 
-  .feno-row { margin-bottom: 6px; }
   .feno-meses-label {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    gap: 3px;
-    margin-bottom: 3px;
+    gap: 4px;
+    margin-bottom: 4px;
   }
   .feno-mes-lbl {
     font-size: 9px; color: var(--text-dim);
     font-weight: 700; text-align: center; letter-spacing: 0;
   }
-  .feno-barras {
+  /* Ciclo anual: una columna por mes, capas apiladas flor / follaje / fruto */
+  .feno-anual {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    gap: 3px;
+    gap: 4px;
   }
-  .feno-bar {
-    height: 18px;
-    border-radius: 4px;
-    background: var(--feno-inactive);
-    transition: background .3s;
+  .feno-mes {
+    display: flex; flex-direction: column;
+    border-radius: 5px; overflow: hidden;
+    height: 34px;
+    border: 1px solid var(--border-light);
   }
-  .feno-bar.brot { background: var(--feno-brot); }
-  .feno-bar.flor { background: var(--feno-flor); }
-  .feno-bar.fruc { background: var(--feno-fruc); }
+  .feno-seg { flex: 1; }
+  .feno-seg.flor  { flex: 0 0 8px; }   /* franja fina de floración arriba */
+  .feno-seg.fruc  { flex: 0 0 8px; }   /* franja fina de fructificación abajo */
+  .feno-seg.foll  { background: var(--feno-inactive); }  /* base = follaje o gris */
+  .feno-seg.vacio { background: transparent; }
 
   .feno-leyenda {
-    display: flex; gap: 18px; margin-top: 8px;
+    display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap;
   }
   .leyenda-item {
     display: flex; align-items: center; gap: 6px;
@@ -330,10 +332,9 @@
   }
   .leyenda-dot {
     width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;
+    border: 1px solid var(--border);
   }
-  .leyenda-dot.brot { background: var(--feno-brot); }
-  .leyenda-dot.flor { background: var(--feno-flor); }
-  .leyenda-dot.fruc { background: var(--feno-fruc); }
+  .leyenda-dot.sinfoll { background: var(--feno-inactive); }
 
   /* ── VALORES ──────────────────────────────────────── */
   .ficha-eco, .ficha-paisajistico { flex-shrink: 0; }
@@ -444,19 +445,10 @@
     </div>
 
     <div class="ficha-fenologia" id="sec-fenologia">
-      <div class="sec-label">Fenología</div>
-      <div class="feno-row">
-        <div class="feno-meses-label" id="feno-label-1"></div>
-        <div class="feno-barras" id="feno-row-flor"></div>
-      </div>
-      <div class="feno-row">
-        <div class="feno-meses-label" id="feno-label-2"></div>
-        <div class="feno-barras" id="feno-row-fruc"></div>
-      </div>
-      <div class="feno-leyenda">
-        <div class="leyenda-item"><div class="leyenda-dot flor"></div>Floración</div>
-        <div class="leyenda-item"><div class="leyenda-dot fruc"></div>Fructificación</div>
-      </div>
+      <div class="sec-label">Ciclo anual</div>
+      <div class="feno-meses-label" id="feno-label"></div>
+      <div class="feno-anual" id="feno-anual"></div>
+      <div class="feno-leyenda" id="feno-leyenda"></div>
     </div>
 
     <div class="ficha-eco">
@@ -501,10 +493,16 @@ const COLS = {
   floracion:            ['floración','floracion'],
   meses_floracion:      ['meses floración','meses floracion'],
   meses_fructificacion: ['meses fructificación','meses fructificacion'],
+  meses_follaje:        ['meses follaje','follaje activo','follaje (meses)','meses con follaje'],
+  meses_sin_follaje:    ['meses sin follaje','sin follaje'],
   fruto:                ['fruto','tipo fruto'],
   propagacion:          ['propagacion','propagación'],
   valor_eco:            ['valor ecosistémico','valor ecosistemico'],
   valor_paisajistico:   ['valor paisajístico','valor paisajistico'],
+  fruto_tipo:           ['fruto','tipo fruto'],
+  color_flor:           ['color de flor','color flor'],
+  color_fruto:          ['color de fruta','color de fruto','color fruta','color fruto'],
+  color_follaje:        ['color de follaje','color follaje','tono follaje','verde follaje'],
   foto_url:             ['foto (url pública)','foto (url publica)','foto url','foto_url','foto','imagen'],
 };
 
@@ -588,40 +586,105 @@ function parseMeses(str) {
   return result;
 }
 
-function renderFenologia(mesesFlor, mesesFruc) {
-  const tieneFlor = mesesFlor.size > 0;
-  const tieneFruc = mesesFruc.size > 0;
+// Ciclo anual: una fila de 12 meses. Cada mes apila 3 capas de color:
+//   franja superior = floración (color de flor de la planta)
+//   base central    = follaje (verde de la planta; gris si ese mes no tiene hoja)
+//   franja inferior = fructificación (color de fruta de la planta)
+function renderFenologia(mesesFlor, mesesFruc, mesesFoll, colores) {
   const sec = document.getElementById('sec-fenologia');
-
-  if (!tieneFlor && !tieneFruc) {
-    sec.style.display = 'none';
-    return;
-  }
+  const hayAlgo = mesesFlor.size || mesesFruc.size || mesesFoll.size;
+  if (!hayAlgo) { sec.style.display = 'none'; return; }
   sec.style.display = 'block';
 
-  ['feno-label-1','feno-label-2'].forEach(id => {
-    const el = document.getElementById(id);
-    el.replaceChildren();
-    MESES_SIGLAS.forEach(s => {
-      const d = document.createElement('div');
-      d.className = 'feno-mes-lbl';
-      d.textContent = s;
-      el.appendChild(d);
-    });
+  const cFlor = colores.flor || 'var(--feno-flor)';
+  const cFruc = colores.fruto || 'var(--feno-fruc)';
+  const cFoll = colores.follaje || 'var(--feno-brot)';
+
+  const lbl = document.getElementById('feno-label');
+  lbl.replaceChildren();
+  MESES_SIGLAS.forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'feno-mes-lbl';
+    d.textContent = s;
+    lbl.appendChild(d);
   });
 
-  function renderRow(containerId, meses, cls) {
-    const el = document.getElementById(containerId);
-    el.replaceChildren();
-    for (let m = 1; m <= 12; m++) {
-      const bar = document.createElement('div');
-      bar.className = 'feno-bar' + (meses.has(m) ? ' ' + cls : '');
-      el.appendChild(bar);
-    }
+  const cont = document.getElementById('feno-anual');
+  cont.replaceChildren();
+  for (let m = 1; m <= 12; m++) {
+    const mes = document.createElement('div');
+    mes.className = 'feno-mes';
+
+    const flor = document.createElement('div');
+    flor.className = mesesFlor.has(m) ? 'feno-seg flor' : 'feno-seg vacio';
+    flor.style.flex = '0 0 8px';
+    if (mesesFlor.has(m)) flor.style.background = cFlor;
+
+    const foll = document.createElement('div');
+    foll.className = 'feno-seg foll';
+    if (mesesFoll.has(m)) foll.style.background = cFoll;   // tiene hoja
+    // si no está en mesesFoll → queda gris (var --feno-inactive), planta sin follaje ese mes
+
+    const fruc = document.createElement('div');
+    fruc.className = mesesFruc.has(m) ? 'feno-seg fruc' : 'feno-seg vacio';
+    fruc.style.flex = '0 0 8px';
+    if (mesesFruc.has(m)) fruc.style.background = cFruc;
+
+    mes.append(flor, foll, fruc);
+    cont.appendChild(mes);
   }
 
-  renderRow('feno-row-flor', mesesFlor, 'flor');
-  renderRow('feno-row-fruc', mesesFruc, 'fruc');
+  // Leyenda con los colores reales de esta planta
+  const ley = document.getElementById('feno-leyenda');
+  ley.replaceChildren();
+  const items = [];
+  if (mesesFoll.size) items.push(['Follaje', cFoll]);
+  if (mesesFlor.size) items.push(['Floración', cFlor]);
+  if (mesesFruc.size) items.push(['Fructificación', cFruc]);
+  if (mesesFoll.size < 12) items.push(['Sin follaje', 'var(--feno-inactive)']);
+  items.forEach(([txt, col]) => {
+    const it = document.createElement('div');
+    it.className = 'leyenda-item';
+    const dot = document.createElement('div');
+    dot.className = 'leyenda-dot';
+    dot.style.background = col;
+    it.append(dot, document.createTextNode(txt));
+    ley.appendChild(it);
+  });
+}
+
+// Determina en qué meses la planta tiene follaje.
+// Prioridad: columna explícita → columna "sin follaje" (invertida) →
+// inferencia por texto (perennifolio = 12 meses; caducifolio = pierde hoja en invierno).
+function inferFollaje(p) {
+  const explicito = parseMesesFollaje(p.meses_follaje, p.meses_sin_follaje);
+  if (explicito.size) return explicito;
+  const txt = norm((p.hoja || '') + ' ' + (p.descripcion || '') + ' ' + (p.floracion || ''));
+  const todos = new Set([1,2,3,4,5,6,7,8,9,10,11,12]);
+  if (/caduc/.test(txt)) {
+    // Hemisferio sur: sin hoja aprox. mayo–agosto
+    return new Set([1,2,3,4,9,10,11,12]);
+  }
+  if (/(perenn|persist|siempre verde)/.test(txt)) return todos;
+  return todos; // por defecto asumir follaje todo el año
+}
+
+// Parsea meses de follaje. "todos"/"todo el año"/vacío-perenne → 1..12;
+// lista de meses → esos; para caducifolios se puede cargar "Meses sin follaje".
+function parseMesesFollaje(activo, sinFollaje) {
+  if (activo && /^(todos|todo el a|perenne|siempre)/i.test(activo.trim())) {
+    return new Set([1,2,3,4,5,6,7,8,9,10,11,12]);
+  }
+  const set = parseMeses(activo);
+  if (set.size) return set;
+  // Si sólo se cargó qué meses NO tiene hoja, invertir
+  const sin = parseMeses(sinFollaje);
+  if (sin.size) {
+    const r = new Set();
+    for (let m = 1; m <= 12; m++) if (!sin.has(m)) r.add(m);
+    return r;
+  }
+  return new Set();
 }
 
 function showError(msg) {
@@ -758,11 +821,16 @@ function mostrarFicha() {
   setVal('descripcion', p.descripcion);
   setVal('porte',       p.altura || p.porte_forma);
   setVal('hoja',        p.hoja);
-  setVal('fruto',       p.fruto);
+  setVal('fruto',       p.fruto_tipo);
   setVal('propagacion', p.propagacion);
 
-  // Fenología
-  renderFenologia(parseMeses(p.meses_floracion), parseMeses(p.meses_fructificacion));
+  // Ciclo anual (follaje + floración + fructificación con colores propios de la planta)
+  renderFenologia(
+    parseMeses(p.meses_floracion),
+    parseMeses(p.meses_fructificacion),
+    inferFollaje(p),
+    { flor: p.color_flor, fruto: p.color_fruto, follaje: p.color_follaje }
+  );
 
   // Valores
   setVal('valor-eco',          p.valor_eco);
