@@ -125,6 +125,34 @@
 
   /* ── SELECTOR ─────────────────────────────────────── */
   .selector-wrap { max-width: 860px; margin: 0 auto 24px; display: none; }
+  .buscador-wrap { position: relative; }
+  .buscador-wrap input {
+    width: 100%; background: var(--bg-cell);
+    border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text-main); padding: 12px 40px 12px 42px;
+    font-size: 15px; outline: none;
+    transition: border-color .2s;
+  }
+  .buscador-wrap input:focus { border-color: var(--accent); }
+  .buscador-wrap input::placeholder { color: var(--text-dim); }
+  .buscador-wrap .icono-lupa {
+    position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim); pointer-events: none;
+    display: flex; align-items: center;
+  }
+  .buscador-wrap .btn-limpiar {
+    position: absolute; right: 10px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: var(--text-dim); font-size: 16px; line-height: 1;
+    padding: 4px 6px; display: none;
+  }
+  .buscador-wrap .btn-limpiar:hover { color: var(--text-main); }
+  .buscador-info {
+    font-size: 11px; color: var(--text-label);
+    margin: 6px 2px 14px; min-height: 14px;
+  }
   .selector-wrap label {
     display: block; font-size: 10px; color: var(--text-label);
     text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 7px;
@@ -375,6 +403,14 @@
 
 <div class="selector-wrap" id="selector-wrap">
   <label>Seleccioná una planta</label>
+  <div class="buscador-wrap">
+    <span class="icono-lupa">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </span>
+    <input type="text" id="buscador-planta" placeholder="Buscá por nombre común o científico…" oninput="filtrarPlantas()" autocomplete="off">
+    <button class="btn-limpiar" id="btn-limpiar" onclick="limpiarBusqueda()" title="Limpiar búsqueda">✕</button>
+  </div>
+  <div class="buscador-info" id="buscador-info"></div>
   <select id="selector-planta" onchange="mostrarFicha()">
     <option value="">— Elegí una planta —</option>
   </select>
@@ -612,13 +648,7 @@ async function init() {
     plantas = parseCSV(text);
     if (!plantas.length) throw new Error('La hoja está vacía o las columnas no coinciden.');
 
-    const sel = document.getElementById('selector-planta');
-    plantas.forEach((p, i) => {
-      const opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = p.nombre_comun + (p.nombre_cientifico ? ' — ' + p.nombre_cientifico : '');
-      sel.appendChild(opt);
-    });
+    poblarSelector(plantas.map((_, i) => i));
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('selector-wrap').style.display = 'block';
@@ -626,6 +656,61 @@ async function init() {
   } catch(err) {
     showError(err.message);
   }
+}
+
+function poblarSelector(indices) {
+  const sel = document.getElementById('selector-planta');
+  const seleccionPrevia = sel.value;
+  sel.replaceChildren();
+  const optVacia = document.createElement('option');
+  optVacia.value = '';
+  optVacia.textContent = indices.length ? '— Elegí una planta —' : '— Sin resultados —';
+  sel.appendChild(optVacia);
+  indices.forEach(i => {
+    const p = plantas[i];
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = p.nombre_comun + (p.nombre_cientifico ? ' — ' + p.nombre_cientifico : '');
+    sel.appendChild(opt);
+  });
+  if (seleccionPrevia !== '' && indices.includes(Number(seleccionPrevia))) {
+    sel.value = seleccionPrevia;
+  }
+}
+
+function filtrarPlantas() {
+  const q = norm(document.getElementById('buscador-planta').value);
+  const info = document.getElementById('buscador-info');
+  document.getElementById('btn-limpiar').style.display = q ? 'block' : 'none';
+
+  if (!q) {
+    poblarSelector(plantas.map((_, i) => i));
+    info.textContent = '';
+    return;
+  }
+
+  const indices = plantas
+    .map((p, i) => i)
+    .filter(i => norm(plantas[i].nombre_comun).includes(q) || norm(plantas[i].nombre_cientifico).includes(q));
+
+  poblarSelector(indices);
+  info.textContent = indices.length === 0
+    ? 'Ninguna planta coincide con la búsqueda'
+    : indices.length + (indices.length === 1 ? ' planta encontrada' : ' plantas encontradas');
+
+  const sel = document.getElementById('selector-planta');
+  if (indices.length === 1) {
+    sel.value = indices[0];
+    mostrarFicha();
+  } else if (sel.value === '') {
+    document.getElementById('ficha-wrap').style.display = 'none';
+  }
+}
+
+function limpiarBusqueda() {
+  document.getElementById('buscador-planta').value = '';
+  filtrarPlantas();
+  document.getElementById('buscador-planta').focus();
 }
 
 function setVal(id, value, placeholder) {
