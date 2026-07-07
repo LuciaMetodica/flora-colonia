@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-tema="oscuro">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,32 +8,6 @@
 <style>
   /* ── TOKENS ─────────────────────────────────────── */
   :root {
-    --bg-app:        #1c1c1c;
-    --bg-ficha:      #252525;
-    --bg-cell:       #1a1a1a;
-    --bg-cell-hover: #222;
-    --border:        #333;
-    --border-light:  #2e2e2e;
-    --text-main:     #f0f0f0;
-    --text-sec:      #aaa;
-    --text-dim:      #555;
-    --text-label:    #606060;
-    --accent:        #7ecf8e;
-    --accent-bg:     #1a3d24;
-    --accent-border: #2d5e38;
-    --tag-sec-bg:    #222;
-    --tag-sec-color: #999;
-    --tag-sec-border:#333;
-    --badge-bg:      #2a2218;
-    --badge-color:   #c8a96e;
-    --badge-border:  #4a3c28;
-    --feno-inactive: #2a2a2a;
-    --feno-brot:     #7ecf8e;
-    --feno-flor:     #e8a040;
-    --feno-fruc:     #4ab8b8;
-    --shadow:        0 2px 16px rgba(0,0,0,.4);
-  }
-  [data-tema="claro"] {
     --bg-app:        #f0ece4;
     --bg-ficha:      #faf7f2;
     --bg-cell:       #edeae3;
@@ -88,21 +62,6 @@
     font-size: 20px; font-weight: 700;
     color: var(--text-main); letter-spacing: -.3px;
   }
-
-  .btn-tema {
-    background: var(--bg-cell);
-    border: 1px solid var(--border);
-    color: var(--text-sec);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-    transition: background .2s, color .2s;
-    white-space: nowrap;
-  }
-  .btn-tema:hover { color: var(--text-main); }
 
   /* ── LOADING / ERROR ──────────────────────────────── */
   .loading-state {
@@ -389,10 +348,6 @@
     <div class="eyebrow">Colonia · Uruguay</div>
     <h1>Flora Nativa — Fichas Técnicas</h1>
   </div>
-  <button class="btn-tema" id="btn-tema" onclick="toggleTema()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-    Modo claro
-  </button>
 </div>
 
 <div class="loading-state" id="loading">
@@ -850,16 +805,6 @@ function mostrarFicha() {
   }
 
   document.getElementById('ficha-wrap').style.display = 'block';
-}
-
-// Toggle oscuro/claro
-function toggleTema() {
-  const html = document.documentElement;
-  const esOscuro = html.getAttribute('data-tema') === 'oscuro';
-  html.setAttribute('data-tema', esOscuro ? 'claro' : 'oscuro');
-  const btn = document.getElementById('btn-tema');
-  btn.querySelector('span') && (btn.querySelector('span').textContent = esOscuro ? 'Modo oscuro' : 'Modo claro');
-  btn.lastChild.textContent = esOscuro ? ' Modo oscuro' : ' Modo claro';
 }
 
 document.getElementById('btn-descargar').addEventListener('click', function() {
