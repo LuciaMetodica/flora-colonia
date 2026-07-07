@@ -180,6 +180,20 @@
   }
   .ficha-foto img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
 
+  .ficha-foto-wrap { position: relative; width: 190px; min-width: 190px; flex-shrink: 0; }
+  .btn-subir-foto {
+    position: absolute; bottom: 8px; right: 8px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent); color: #fff; border: 2px solid var(--bg-ficha);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 5px rgba(0,0,0,.25); transition: transform .15s;
+  }
+  .btn-subir-foto:hover { transform: scale(1.08); }
+  .foto-estado {
+    font-size: 11px; margin-top: 6px; min-height: 14px;
+    color: var(--text-sec); text-align: center;
+  }
+
   .ficha-meta {
     display: flex; flex-direction: column; justify-content: center;
     flex: 1; min-width: 0;
@@ -320,8 +334,11 @@
   .ficha-footer {
     margin-top: 16px;
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
+  .ficha-footer .foto-estado { margin: 0; text-align: left; flex: 1; }
   .btn-descargar {
     background: var(--accent-bg);
     color: var(--accent);
@@ -378,7 +395,13 @@
     <div class="ficha-badge" id="ficha-badge">—</div>
 
     <div class="ficha-header">
-      <div class="ficha-foto" id="foto-planta">foto / ilustración</div>
+      <div class="ficha-foto-wrap">
+        <div class="ficha-foto" id="foto-planta">foto / ilustración</div>
+        <button type="button" class="btn-subir-foto no-print" id="btn-subir-foto" title="Subir o cambiar foto">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </button>
+        <input type="file" id="input-foto" accept="image/jpeg,image/png,image/webp" hidden>
+      </div>
       <div class="ficha-meta">
         <h1 id="nombre-comun"></h1>
         <h2 id="nombre-cientifico"></h2>
@@ -421,6 +444,7 @@
   </div>
 
   <div class="ficha-footer">
+    <div class="foto-estado no-print" id="foto-estado"></div>
     <button class="btn-descargar" id="btn-descargar">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Descargar ficha A4 (PNG)
@@ -804,8 +828,68 @@ function mostrarFicha() {
     fotoEl.textContent = 'foto / ilustración';
   }
 
+  setFotoEstado('');
   document.getElementById('ficha-wrap').style.display = 'block';
 }
+
+// ── SUBIDA DE FOTO ──────────────────────────────────
+const UPLOAD_URL = 'https://flora-upload-674034076530.southamerica-east1.run.app/upload';
+
+function setFotoEstado(msg, esError) {
+  const el = document.getElementById('foto-estado');
+  el.textContent = msg || '';
+  el.style.color = esError ? '#b23a2e' : 'var(--text-sec)';
+}
+
+document.getElementById('btn-subir-foto').addEventListener('click', function() {
+  if (!nombreActual) { setFotoEstado('Elegí una planta primero.', true); return; }
+  document.getElementById('input-foto').click();
+});
+
+document.getElementById('input-foto').addEventListener('change', async function() {
+  const file = this.files[0];
+  if (!file) return;
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) { setFotoEstado('Usá JPG, PNG o WebP.', true); this.value=''; return; }
+  if (file.size > 8 * 1024 * 1024) { setFotoEstado('La imagen supera 8 MB.', true); this.value=''; return; }
+
+  let pin = localStorage.getItem('flora_pin');
+  if (!pin) {
+    pin = (prompt('Clave para subir fotos:') || '').trim();
+    if (!pin) { setFotoEstado('Subida cancelada.', true); this.value=''; return; }
+    localStorage.setItem('flora_pin', pin);
+  }
+
+  const dataUrl = await new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = () => rej(new Error('No se pudo leer el archivo'));
+    r.readAsDataURL(file);
+  });
+
+  // Preview inmediato en la ficha
+  const fotoEl = document.getElementById('foto-planta');
+  fotoEl.replaceChildren();
+  const img = document.createElement('img');
+  img.src = dataUrl;
+  fotoEl.appendChild(img);
+
+  const planta = nombreActual;
+  setFotoEstado('Subiendo foto de ' + planta + '…');
+  try {
+    const resp = await fetch(UPLOAD_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre: planta, imagen: dataUrl, pin: pin })
+    });
+    const j = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(j.error || ('Error ' + resp.status));
+    setFotoEstado('Foto de ' + planta + ' guardada ✓');
+  } catch (err) {
+    if (/pin/i.test(err.message)) localStorage.removeItem('flora_pin');
+    setFotoEstado('No se pudo subir: ' + err.message, true);
+  }
+  this.value = '';
+});
 
 document.getElementById('btn-descargar').addEventListener('click', function() {
   const tarjeta = document.getElementById('ficha-planta');
@@ -820,6 +904,7 @@ document.getElementById('btn-descargar').addEventListener('click', function() {
     useCORS: true,
     width: 794,
     height: 1122,
+    ignoreElements: (el) => el.classList && el.classList.contains('no-print'),
   }).then(canvas => {
     const enlace = document.createElement('a');
     const nombre = nombreActual.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]/g,'').trim().replace(/\s+/g,'_');
