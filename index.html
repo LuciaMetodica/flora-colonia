@@ -619,7 +619,7 @@ function poblarSelector(indices) {
     const opt = document.createElement('option');
     opt.value = i;
     const marca = p.estado === 'Aprobada' ? '✓ ' : '';
-    opt.textContent = marca + p.nombre_comun + (p.nombre_cientifico ? ' — ' + p.nombre_cientifico : '');
+    opt.textContent = marca + p.nombre_comun + (p.nombre_cientifico ? ' · ' + p.nombre_cientifico : '');
     sel.appendChild(opt);
   });
   if (seleccionPrevia !== '' && indices.includes(Number(seleccionPrevia))) sel.value = seleccionPrevia;
